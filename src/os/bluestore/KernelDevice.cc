@@ -44,8 +44,6 @@ KernelDevice::KernelDevice(aio_callback_t cb, void *cbpriv)
     aio_thread(this),
     injecting_crash(0)
 {
-  zeros = buffer::create_page_aligned(1048576);
-  zeros.zero();
 }
 
 int KernelDevice::_lock()
@@ -457,13 +455,9 @@ int KernelDevice::aio_zero(
 
   bufferlist bl;
   while (len > 0) {
-    bufferlist t;
-    t.append(zeros, 0, MIN(zeros.length(), len));
-    len -= t.length();
-    bl.claim_append(t);
+    bl.append_zero(1048576, true);
+    len -= 1048576;
   }
-  // note: this works with aio only becaues the actual buffer is
-  // this->zeros, which is page-aligned and never freed.
   return aio_write(off, bl, ioc, false);
 }
 
