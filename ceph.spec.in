@@ -44,7 +44,6 @@
 %endif
 
 %{!?_udevrulesdir: %global _udevrulesdir /lib/udev/rules.d}
-%{!?tmpfiles_create: %global tmpfiles_create systemd-tmpfiles --create}
 
 # unify libexec for all targets
 %global _libexecdir %{_exec_prefix}/lib
@@ -884,6 +883,7 @@ DISABLE_RESTART_ON_UPDATE="yes"
 %{_udevrulesdir}/50-rbd.rules
 %attr(3770,ceph,ceph) %dir %{_localstatedir}/log/ceph/
 %attr(750,ceph,ceph) %dir %{_localstatedir}/lib/ceph/
+%attr(770,ceph,ceph) %dir %{_localstatedir}/run/ceph/
 
 %pre common
 CEPH_GROUP_ID=167
@@ -905,9 +905,6 @@ if ! getent passwd ceph >/dev/null ; then
 fi
 %endif
 exit 0
-
-%post common
-%tmpfiles_create %{_tmpfilesdir}/ceph-common.conf
 
 %postun common
 # Package removal cleanup
